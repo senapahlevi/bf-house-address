@@ -1,41 +1,119 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"net/http"
+	"time"
 
+	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
-type Rumah struct {
-	Tipe   string
-	Alamat string
-	Lat    float64
-	Long   float64
+type House struct {
+	ID        int       `gorm:"id"`
+	Tipe      string    `gorm:"tipe"`
+	Alamat    string    `gorm:"alamat"`
+	Lat       float64   `gorm:"lat"`
+	Long      float64   `gorm:"long"`
+	CreatedAt time.Time `gorm:"created_at"`
+	UpdatedAt time.Time `gorm:"updated_at"`
+	DeletedAt time.Time `gorm:"deleted_at"`
 }
 
-func initialDB() (*gorm.DB, error) {
-	dsn := "host=localhost user=postgres password=123456789 dbname=rumah port=5432 sslmode=disable TimeZone=Asia/Jakarta"
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Silent),
-	})
-	if err != nil {
-		return nil, err
-	}
-	db.AutoMigrate(&Rumah{})
+// func createRumah(db *gorm.DB) error {
+// 	rumah := House{
+// 		Tipe:   "Tipe Rumah A",
+// 		Alamat: "Alamat Rumah",
+// 		Lat:    123.456,
+// 		Long:   789.012,
+// 	}
 
-	return db, nil
-}
+// 	err := db.Create(&rumah).Error
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	return nil
+// }
 
 func main() {
-	db, err := initialDB()
+	dsn := "host=localhost user=postgres password=123456789 dbname=address-house-map-bf port=5432 sslmode=disable TimeZone=Asia/Jakarta"
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal("Failed to connect to database:", err)
+		log.Fatal(err)
+		fmt.Println("gagal")
 	}
-	// defer db.Close()
-	defer db.SQLDB().Close()
+	fmt.Println("berhasil konek")
+	err = db.AutoMigrate(&House{})
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// err = createRumah(db)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
-	// r := gin.Default()
+	router := gin.Default()
+	api := router.Group("/api/v1/")
 
+	api.POST("/house", func(c *gin.Context) {
+		var house House
+		err := c.ShouldBindJSON(&house)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		result := db.Create(&house)
+		if result.Error != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, house)
+	})
+
+	api.GET("/house/:id", func(c *gin.Context) {
+		var house House
+		id := c.Param("id")
+		result := db.Where("id = ?", id).First(&house)
+
+		// err := c.ShouldBindJSON(&house)
+		if result.Error != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "house not found"})
+			return
+		}
+
+		c.JSON(http.StatusOK, house)
+	})
+	api.PUT("/house/:id", func(c *gin.Context) {
+		var house House
+		id := c.Param("id")
+		// Pencarian data berdasarkan ID
+		result := db.Model(&house).Where("id = ?", id).First(&house)
+		if result.Error != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "house not found"})
+			return
+		}
+
+		// Perbarui data berdasarkan permintaan HTTP
+		err := c.ShouldBindJSON(&house)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		// Simpan perubahan ke dalam database
+		result = db.Save(&house)
+		if result.Error != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, house)
+	})
+	api.DELETE("/house/:id", func(c *gin.Context) {
+		// var house House
+
+	})
+	router.Run(":8080")
 }
