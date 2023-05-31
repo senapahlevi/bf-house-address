@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -15,12 +16,26 @@ type House struct {
 	ID        int       `gorm:"id"`
 	Tipe      string    `gorm:"tipe"`
 	Alamat    string    `gorm:"alamat"`
-	Lat       float64   `gorm:"lat"`
-	Long      float64   `gorm:"long"`
+	Lat       string    `gorm:"lat"`
+	Long      string    `gorm:"long"`
 	CreatedAt time.Time `gorm:"created_at"`
 	UpdatedAt time.Time `gorm:"updated_at"`
 	DeletedAt time.Time `gorm:"deleted_at"`
 }
+
+// func (house *House) BeforeSave(tx *gorm.DB) (err error) {
+// 	long, err := strconv.ParseFloat(house.Long, 64)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	lat, err := strconv.ParseFloat(house.Lat, 64)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	house.Long = strconv.FormatFloat(long, 'f', -1, 64)
+// 	house.Lat = strconv.FormatFloat(lat, 'f', -1, 64)
+// 	return nil
+// }
 
 // func createRumah(db *gorm.DB) error {
 // 	rumah := House{
@@ -45,6 +60,7 @@ func main() {
 		log.Fatal(err)
 		fmt.Println("gagal")
 	}
+
 	fmt.Println("berhasil konek")
 	err = db.AutoMigrate(&House{})
 	// if err != nil {
@@ -56,7 +72,35 @@ func main() {
 	// }
 
 	router := gin.Default()
+
+	// config := cors.DefaultConfig()
+	// config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE"}
+	// config.AllowHeaders = []string{"Content-Type"}
+	// router.Use(cors.New(config))
+
+	router.Use(cors.New(cors.Config{
+		AllowOrigins: []string{"http://localhost:3000"},
+		AllowMethods: []string{"GET", "POST", "PUT", "DELETE"},
+		// AllowHeaders:     []string{"Origin"},
+		// ExposeHeaders:    []string{"Content-Type"},
+		AllowHeaders: []string{"Content-Type"},
+		// ExposeHeaders:    []string{"Content-Type"},
+		AllowCredentials: true,
+	}))
+	// Access-Control-Allow-Origin
+
 	api := router.Group("/api/v1/")
+	api.GET("/data-house", func(c *gin.Context) {
+		var house []House
+		result := db.Find(&house)
+
+		if result.Error != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": result.Error.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, house)
+	})
 
 	api.POST("/house", func(c *gin.Context) {
 		var house House
@@ -111,9 +155,41 @@ func main() {
 		}
 		c.JSON(http.StatusOK, house)
 	})
+
 	api.DELETE("/house/:id", func(c *gin.Context) {
 		// var house House
+		var house House
+		id := c.Param("id")
+		result := db.Where("id = ?", id).First(&house)
+		if result.Error != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "house not found"})
+			return
+		}
 
+		result = db.Delete(&house)
+		if result.Error != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, house)
+	})
+
+	api.POST("/calculate-route", func(c *gin.Context) {
+		// var house House
+		var house House
+		id := c.Param("id")
+		result := db.Model(&house).Where("id = ?", id).First(&house)
+		if result.Error != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "house not found"})
+			return
+		}
+
+		result = db.Delete(&house)
+		if result.Error != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, house)
 	})
 	router.Run(":8080")
 }
