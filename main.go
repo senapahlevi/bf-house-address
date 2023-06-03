@@ -287,7 +287,7 @@ func main() {
 		Haversine string `json:"haversine"`
 		Euclidean string `json:"euclidean"`
 	}
-	fmt.Println("hello port", os.Getenv(fmt.Sprint("APP_PORT")))
+	fmt.Println("hello port", os.Getenv(fmt.Sprint("PORT")))
 
 	api.POST("/calculate-route", func(c *gin.Context) {
 		var dataOriginHouse House
@@ -337,7 +337,7 @@ func main() {
 		// c.JSON(http.StatusOK, route)
 	})
 	// router.Run(":8080")
-	router.Run(":" + os.Getenv("APP_PORT"))
+	router.Run(":" + os.Getenv("PORT"))
 	// router.Run(":0.0.0.0")
 
 	// router.Run(":" + os.Getenv("PORT"))
