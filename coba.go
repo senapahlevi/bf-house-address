@@ -3,6 +3,8 @@ type house struct {
 	longitude float64
 	latitude  float64
 }
+dsn := "host=qwe-zndefwe-a.singapore-postgres.render.com user=postgresql password=rco54wTZcPRiI7K7idqr1o2mCg92nMMm dbname=pribadidb port=5432 TimeZone=Asia/Jakarta" //local
+
 
 // Calculate the optimum route between a list of houses
 func calculateOptimumRoute(houses []house) []house {

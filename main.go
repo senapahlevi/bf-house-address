@@ -44,56 +44,66 @@ type Route struct {
 	Distance float64 `json:"distance"`
 }
 
-func calculateDistance(house1, house2 House) float64 {
+// func calculateDistance(originLat, originLong, destinationLat, destinationLong float64) float64 {
 
-	lat1, _ := strconv.ParseFloat(house1.Lat, 64)
-	long1, _ := strconv.ParseFloat(house1.Long, 64)
-	lat2, _ := strconv.ParseFloat(house2.Lat, 64)
-	long2, _ := strconv.ParseFloat(house2.Long, 64)
+// 	lat1, _ := strconv.ParseFloat(house1.Lat, 64)
+// 	long1, _ := strconv.ParseFloat(house1.Long, 64)
+// 	lat2, _ := strconv.ParseFloat(house2.Lat, 64)
+// 	long2, _ := strconv.ParseFloat(house2.Long, 64)
+
+// 	return math.Sqrt(math.Pow(lat2-lat1, 2) + math.Pow(long2-long1, 2))
+// }
+
+func calculateDistance(originLat, originLong, destinationLat, destinationLong float64) float64 {
+
+	lat1 := originLat
+	long1 := originLong
+	lat2 := destinationLat
+	long2 := destinationLong
 
 	return math.Sqrt(math.Pow(lat2-lat1, 2) + math.Pow(long2-long1, 2))
 }
 
 // Nearest Neighbor algorithm to calculate the optimum route
-func calculateOptimumRoute(houses []House) Route {
-	var route Route
-	var visited = make(map[uint]bool)
+// func calculateOptimumRoute(houses []House) Route {
+// 	var route Route
+// 	var visited = make(map[uint]bool)
 
-	// Start from the first house
-	currentHouse := houses[0]
-	route.Houses = append(route.Houses, currentHouse)
-	visited[currentHouse.ID] = true
+// 	// Start from the first house
+// 	currentHouse := houses[0]
+// 	route.Houses = append(route.Houses, currentHouse)
+// 	visited[currentHouse.ID] = true
 
-	// Visit the remaining houses
-	for len(route.Houses) < len(houses) {
-		var nearestHouse House
-		var minDistance float64
+// 	// Visit the remaining houses
+// 	for len(route.Houses) < len(houses) {
+// 		var nearestHouse House
+// 		var minDistance float64
 
-		// Find the nearest unvisited house
-		for _, house := range houses {
-			if !visited[house.ID] {
-				distance := calculateDistance(currentHouse, house)
-				if minDistance == 0 || distance < minDistance {
-					minDistance = distance
-					nearestHouse = house
-				}
-			}
-		}
+// 		// Find the nearest unvisited house
+// 		for _, house := range houses {
+// 			if !visited[house.ID] {
+// 				distance := calculateDistance(currentHouse, house)
+// 				if minDistance == 0 || distance < minDistance {
+// 					minDistance = distance
+// 					nearestHouse = house
+// 				}
+// 			}
+// 		}
 
-		// Visit the nearest house
-		route.Houses = append(route.Houses, nearestHouse)
-		visited[nearestHouse.ID] = true
-		currentHouse = nearestHouse
-	}
+// 		// Visit the nearest house
+// 		route.Houses = append(route.Houses, nearestHouse)
+// 		visited[nearestHouse.ID] = true
+// 		currentHouse = nearestHouse
+// 	}
 
-	// Calculate the total distance of the route
-	for i := 0; i < len(route.Houses)-1; i++ {
-		route.Distance += calculateDistance(route.Houses[i], route.Houses[i+1])
-	}
+// 	// Calculate the total distance of the route
+// 	for i := 0; i < len(route.Houses)-1; i++ {
+// 		route.Distance += calculateDistance(route.Houses[i], route.Houses[i+1])
+// 	}
 
-	// Return the calculated route
-	return route
-}
+// 	// Return the calculated route
+// 	return route
+// }
 
 // Define a constant for the radius of the earth in kilometers
 const earthRadius = 6371.0
@@ -126,15 +136,48 @@ func haversineDistance(originLong float64, originLat float64, destinationLong fl
 }
 
 func main() {
-	dsn := "host=localhost user=postgres password=123456789 dbname=address-house-map-bf port=5432 sslmode=disable TimeZone=Asia/Jakarta"
+	//cloud start
+
+	// mustGetenv := func(k string) string {
+	// 	v := os.Getenv(k)
+	// 	if v == "" {
+	// 		log.Fatalf("Fatal Error in connect_gorm.go: %s environment variable not set.\n", k)
+	// 	}
+	// 	return v
+	// }
+
+	// Note: Saving credentials in environment variables is convenient, but not
+	// secure - consider a more secure solution such as
+	// Cloud Secret Manager (https://cloud.google.com/secret-manager) to help
+	// keep passwords and other secrets safe.
+	// var (
+	// 	dbHost = os.Getenv("DB_HOST") // e.g. 'postgres'
+	// 	dbUser = os.Getenv("DB_USER") // e.g. 'postgres'
+	// 	dbPwd  = os.Getenv("DB_PASS") // e.g. '123456'
+	// 	dbName = os.Getenv("DB_NAME") // e.g. 'spanner'
+	// 	dbPort = os.Getenv("DB_PORT") // e.g. 'spanner'
+	// 	// instanceConnectionName = mustGetenv("INSTANCE_CONNECTION_NAME")
+	// )
+	//cloud end
+
+	// dsn := "host=localhost user=postgres password=123456789 dbname=address-house-map-bf port=5432 sslmode=disable TimeZone=Asia/Jakarta" //local
+	// db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	// if err != nil {
+	// 	log.Fatal(err)
+	// 	fmt.Println("gagal")
+	// }
+
+	//cloud
+	dsn := "host=qwe-zndefwe-a.singapore-postgres.render.com user=postgresql password=rco54wTZcPRiI7K7idqr1o2mCg92nMMm dbname=pribadidb port=5432 TimeZone=Asia/Jakarta" //local
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
 		fmt.Println("gagal")
 	}
+	//
 
 	fmt.Println("berhasil konek")
-	err = db.AutoMigrate(&Calculate{})
+	// err = db.AutoMigrate(&Calculate{})
 	// if err != nil {
 	// 	log.Fatal(err)
 	// }
@@ -242,6 +285,10 @@ func main() {
 		Lat string `json:"lat"`
 		Lon string `json:"long"`
 	}
+	type ResponseCalculate struct {
+		Haversine string `json:"haversine"`
+		Euclidean string `json:"euclidean"`
+	}
 
 	api.POST("/calculate-route", func(c *gin.Context) {
 
@@ -290,12 +337,24 @@ func main() {
 			return
 		}
 
-		// originLat, _ := strconv.ParseFloat(dataOriginHouse.Lat, 64)
-		// originLong, _ := strconv.ParseFloat(dataOriginHouse.Long, 64)
-		// destinationLat, _ := strconv.ParseFloat(dataDestinationHouse.Lat, 64)
-		// destinationLong, _ := strconv.ParseFloat(dataDestinationHouse.Long, 64)
+		originLat, _ := strconv.ParseFloat(dataOriginHouse.Lat, 64)
+		originLong, _ := strconv.ParseFloat(dataOriginHouse.Long, 64)
+		destinationLat, _ := strconv.ParseFloat(dataDestinationHouse.Lat, 64)
+		destinationLong, _ := strconv.ParseFloat(dataDestinationHouse.Long, 64)
 
-		c.JSON(http.StatusOK, calculate)
+		resultHaversine := haversineDistance(originLong, originLat, destinationLong, destinationLat)
+		resultCalculate := calculateDistance(originLat, originLong, destinationLat, destinationLong)
+
+		// optimumRoute := append(calculate, calculateDistance)
+		// var hasil []CalculateResult
+		HaversineResponse := strconv.FormatFloat(resultHaversine, 'f', -1, 64) // s = "64.2345"
+		EuclideanResponse := strconv.FormatFloat(resultCalculate, 'f', -1, 64) // s = "64.2345"
+
+		response := ResponseCalculate{
+			Haversine: HaversineResponse,
+			Euclidean: EuclideanResponse,
+		}
+		c.JSON(http.StatusOK, response)
 		// c.JSON(http.StatusOK, route)
 	})
 	router.Run(":8080")
