@@ -169,7 +169,7 @@ func main() {
 	// }
 
 	//r
-	dsn := "host=dpg-chtbcdl269vccp4ea7s0-a.singapore-postgres.render.com user=postgresql password=rco54wTZcPRiI7K7idqr1o2mCg92nMMm dbname=pribadidb port=5432 sslmode=require TimeZone=Asia/Jakarta" //local
+	dsn := "host=containers-us-west-98.railway.app user=postgres password=04njxElMvMSRpaqSSafl dbname=railway port=7927 TimeZone=Asia/Jakarta" //local
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
@@ -179,10 +179,6 @@ func main() {
 
 	fmt.Println("berhasil konek")
 	// err = db.AutoMigrate(&Calculate{})
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// err = createRumah(db)
 	// if err != nil {
 	// 	log.Fatal(err)
 	// }
