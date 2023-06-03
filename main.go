@@ -168,8 +168,8 @@ func main() {
 	// 	fmt.Println("gagal")
 	// }
 
-	//cloud
-	dsn := "host=qwe-zndefwe-a.singapore-postgres.render.com user=postgresql password=rco54wTZcPRiI7K7idqr1o2mCg92nMMm dbname=pribadidb port=5432 TimeZone=Asia/Jakarta" //local
+	//r
+	dsn := "host=qwe-zndefwe-a.singapore-postgres.render.com user=postgresql password=rco54wTZcPRiI7K7idqr1o2mCg92nMMm dbname=pribadidb port=5432  sslmode=require TimeZone=Asia/Jakarta" //local
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
@@ -359,8 +359,8 @@ func main() {
 		c.JSON(http.StatusOK, response)
 		// c.JSON(http.StatusOK, route)
 	})
-	// router.Run(":8080")
-	router.Run(":0.0.0.0")
+	router.Run(":8080")
+	// router.Run(":0.0.0.0")
 
 	// router.Run(":" + os.Getenv("PORT"))
 }
