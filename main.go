@@ -169,7 +169,7 @@ func main() {
 	// }
 
 	//r
-	dsn := "host=qwe-zndefwe-a.singapore-postgres.render.com user=postgresql password=rco54wTZcPRiI7K7idqr1o2mCg92nMMm dbname=pribadidb port=5432  sslmode=require TimeZone=Asia/Jakarta" //local
+	dsn := "host=dpg-chtbcdl269vccp4ea7s0-a.singapore-postgres.render.com user=postgresql password=rco54wTZcPRiI7K7idqr1o2mCg92nMMm dbname=pribadidb port=5432 sslmode=require TimeZone=Asia/Jakarta" //local
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
