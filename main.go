@@ -5,6 +5,7 @@ import (
 	"log"
 	"math"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -289,6 +290,7 @@ func main() {
 		Haversine string `json:"haversine"`
 		Euclidean string `json:"euclidean"`
 	}
+	fmt.Println("hello port", os.Getenv(fmt.Sprint("PORT")))
 
 	api.POST("/calculate-route", func(c *gin.Context) {
 
@@ -357,5 +359,17 @@ func main() {
 		c.JSON(http.StatusOK, response)
 		// c.JSON(http.StatusOK, route)
 	})
-	router.Run(":8080")
+	// router.Run(":8080")
+	router.Run(":0.0.0.0")
+
+	// router.Run(":" + os.Getenv("PORT"))
+}
+
+func envPortOr(port string) string {
+	// If `PORT` variable in environment exists, return it
+	if envPort := os.Getenv("PORT"); envPort != "" {
+		return ":" + envPort
+	}
+	// Otherwise, return the value of `port` variable from function argument
+	return ":" + port
 }
