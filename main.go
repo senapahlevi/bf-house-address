@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -286,29 +287,9 @@ func main() {
 		Haversine string `json:"haversine"`
 		Euclidean string `json:"euclidean"`
 	}
-	fmt.Println("hello port", os.Getenv(fmt.Sprint("PORT")))
+	fmt.Println("hello port", os.Getenv(fmt.Sprint("APP_PORT")))
 
 	api.POST("/calculate-route", func(c *gin.Context) {
-
-		//coba start
-
-		// var locations []Location
-		// err := c.ShouldBindJSON(&locations)
-		// if err != nil {
-		// 	c.JSON(http.StatusBadRequest, gin.H{"error bind": err.Error()})
-		// 	return
-		// }
-
-		// var houses []House
-		// for _, loc := range locations {
-		// 	houses = append(houses, House{Lat: loc.Lat, Long: loc.Lon})
-		// }
-
-		// // Calculate the optimum route using the Nearest Neighbor algorithm
-		// route := calculateOptimumRoute(houses)
-
-		//coba end
-
 		var dataOriginHouse House
 		var dataDestinationHouse House
 		var calculate Calculate
@@ -355,10 +336,20 @@ func main() {
 		c.JSON(http.StatusOK, response)
 		// c.JSON(http.StatusOK, route)
 	})
-	router.Run(":8080")
+	// router.Run(":8080")
+	router.Run(":" + os.Getenv("APP_PORT"))
 	// router.Run(":0.0.0.0")
 
 	// router.Run(":" + os.Getenv("PORT"))
+}
+
+func init() {
+
+	err := godotenv.Load(".env")
+
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 }
 
 func envPortOr(port string) string {
