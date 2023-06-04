@@ -37,24 +37,6 @@ type Calculate struct {
 	CreatedAt       time.Time `gorm:"created_at"`
 	UpdatedAt       time.Time `gorm:"updated_at"`
 }
-type RouteDistance struct {
-	Distance int `json:"distance"`
-}
-
-type Route struct {
-	Houses   []House `json:"houses"`
-	Distance float64 `json:"distance"`
-}
-
-// func calculateDistance(originLat, originLong, destinationLat, destinationLong float64) float64 {
-
-// 	lat1, _ := strconv.ParseFloat(house1.Lat, 64)
-// 	long1, _ := strconv.ParseFloat(house1.Long, 64)
-// 	lat2, _ := strconv.ParseFloat(house2.Lat, 64)
-// 	long2, _ := strconv.ParseFloat(house2.Long, 64)
-
-// 	return math.Sqrt(math.Pow(lat2-lat1, 2) + math.Pow(long2-long1, 2))
-// }
 
 func calculateDistance(originLat, originLong, destinationLat, destinationLong float64) float64 {
 
@@ -66,48 +48,7 @@ func calculateDistance(originLat, originLong, destinationLat, destinationLong fl
 	return math.Sqrt(math.Pow(lat2-lat1, 2) + math.Pow(long2-long1, 2))
 }
 
-// Nearest Neighbor algorithm to calculate the optimum route
-// func calculateOptimumRoute(houses []House) Route {
-// 	var route Route
-// 	var visited = make(map[uint]bool)
-
-// 	// Start from the first house
-// 	currentHouse := houses[0]
-// 	route.Houses = append(route.Houses, currentHouse)
-// 	visited[currentHouse.ID] = true
-
-// 	// Visit the remaining houses
-// 	for len(route.Houses) < len(houses) {
-// 		var nearestHouse House
-// 		var minDistance float64
-
-// 		// Find the nearest unvisited house
-// 		for _, house := range houses {
-// 			if !visited[house.ID] {
-// 				distance := calculateDistance(currentHouse, house)
-// 				if minDistance == 0 || distance < minDistance {
-// 					minDistance = distance
-// 					nearestHouse = house
-// 				}
-// 			}
-// 		}
-
-// 		// Visit the nearest house
-// 		route.Houses = append(route.Houses, nearestHouse)
-// 		visited[nearestHouse.ID] = true
-// 		currentHouse = nearestHouse
-// 	}
-
-// 	// Calculate the total distance of the route
-// 	for i := 0; i < len(route.Houses)-1; i++ {
-// 		route.Distance += calculateDistance(route.Houses[i], route.Houses[i+1])
-// 	}
-
-// 	// Return the calculated route
-// 	return route
-// }
-
-// Define a constant for the radius of the earth in kilometers
+//  radius of the earth in km
 const earthRadius = 6371.0
 
 // Convert degrees to radians
@@ -140,35 +81,6 @@ func haversineDistance(originLong float64, originLat float64, destinationLong fl
 func main() {
 	//cloud start
 
-	// mustGetenv := func(k string) string {
-	// 	v := os.Getenv(k)
-	// 	if v == "" {
-	// 		log.Fatalf("Fatal Error in connect_gorm.go: %s environment variable not set.\n", k)
-	// 	}
-	// 	return v
-	// }
-
-	// Note: Saving credentials in environment variables is convenient, but not
-	// secure - consider a more secure solution such as
-	// Cloud Secret Manager (https://cloud.google.com/secret-manager) to help
-	// keep passwords and other secrets safe.
-	// var (
-	// 	dbHost = os.Getenv("DB_HOST") // e.g. 'postgres'
-	// 	dbUser = os.Getenv("DB_USER") // e.g. 'postgres'
-	// 	dbPwd  = os.Getenv("DB_PASS") // e.g. '123456'
-	// 	dbName = os.Getenv("DB_NAME") // e.g. 'spanner'
-	// 	dbPort = os.Getenv("DB_PORT") // e.g. 'spanner'
-	// 	// instanceConnectionName = mustGetenv("INSTANCE_CONNECTION_NAME")
-	// )
-	//cloud end
-
-	// dsn := "host=localhost user=postgres password=123456789 dbname=address-house-map-bf port=5432 sslmode=disable TimeZone=Asia/Jakarta" //local
-	// db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	// if err != nil {
-	// 	log.Fatal(err)
-	// 	fmt.Println("gagal")
-	// }
-
 	//r
 	dsn := "host=containers-us-west-98.railway.app user=postgres password=04njxElMvMSRpaqSSafl dbname=railway port=7927 TimeZone=Asia/Jakarta" //local
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -187,7 +99,7 @@ func main() {
 	router := gin.Default()
 
 	router.Use(cors.New(cors.Config{
-		AllowOrigins: []string{"http://localhost:3000"},
+		AllowOrigins: []string{"http://localhost:3000", "https://next-bf-home-routes.vercel.app"},
 		AllowMethods: []string{"GET", "POST", "PUT", "DELETE"},
 		AllowHeaders: []string{"Content-Type"},
 		// ExposeHeaders:    []string{"Content-Type"},
@@ -336,8 +248,8 @@ func main() {
 		c.JSON(http.StatusOK, response)
 		// c.JSON(http.StatusOK, route)
 	})
-	// router.Run(":8080")
-	router.Run(":" + os.Getenv("PORT"))
+	router.Run(":8080")
+	// router.Run(":" + os.Getenv("PORT"))
 	// router.Run(":0.0.0.0")
 
 	// router.Run(":" + os.Getenv("PORT"))
