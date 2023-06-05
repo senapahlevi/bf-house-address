@@ -48,15 +48,15 @@ func calculateDistance(originLat, originLong, destinationLat, destinationLong fl
 	return math.Sqrt(math.Pow(lat2-lat1, 2) + math.Pow(long2-long1, 2))
 }
 
-//  radius of the earth in km
+//  radius bumi dalam km
 const earthRadius = 6371.0
 
-// Convert degrees to radians
+// konversi degrees ke radians
 func deg2rad(deg float64) float64 {
 	return deg * math.Pi / 180.0
 }
 
-// Calculate the haversine distance between two points in kilometers
+// Kalkulasi 2 titik dalam km
 func haversineDistance(originLong float64, originLat float64, destinationLong float64, destinationLat float64) float64 {
 
 	// Convert the latitude and longitude values to radians
@@ -105,7 +105,6 @@ func main() {
 		// ExposeHeaders:    []string{"Content-Type"},
 		AllowCredentials: true,
 	}))
-	// Access-Control-Allow-Origin
 
 	api := router.Group("/api/v1/")
 	api.GET("/data-house", func(c *gin.Context) {
@@ -191,10 +190,7 @@ func main() {
 		}
 		c.JSON(http.StatusOK, house)
 	})
-	type Location struct {
-		Lat string `json:"lat"`
-		Lon string `json:"long"`
-	}
+
 	type ResponseCalculate struct {
 		Haversine string `json:"haversine"`
 		Euclidean string `json:"euclidean"`
@@ -262,13 +258,4 @@ func init() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-}
-
-func envPortOr(port string) string {
-	// If `PORT` variable in environment exists, return it
-	if envPort := os.Getenv("PORT"); envPort != "" {
-		return ":" + envPort
-	}
-	// Otherwise, return the value of `port` variable from function argument
-	return ":" + port
 }
