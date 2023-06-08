@@ -17,6 +17,7 @@ require (
 	github.com/go-playground/validator/v10 v10.14.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/golang-basic/golearn v0.0.0-20141106095017-ec846e62d2ef // indirect
+	github.com/golang/geo v0.0.0-20230421003525-6adc56603217 // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/gonum/blas v0.0.0-20181208220705-f22b278b28ac // indirect
