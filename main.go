@@ -43,27 +43,6 @@ type Calculate struct {
 	UpdatedAt    time.Time `gorm:"updated_at"`
 }
 
-// func EuclideanDistance(lat1, lon1, lat2, lon2 float64) float64 {
-// 	// radius bumi km
-// 	const R = 6371
-
-// 	// Convert latitude dan longitude ke Cartesian coordinates
-// 	p1 := r3.Vector{
-// 		X: R * math.Cos(lat1) * math.Cos(lon1),
-// 		Y: R * math.Cos(lat1) * math.Sin(lon1),
-// 		Z: R * math.Sin(lat1),
-// 	}
-
-// 	p2 := r3.Vector{
-// 		X: R * math.Cos(lat2) * math.Cos(lon2),
-// 		Y: R * math.Cos(lat2) * math.Sin(lon2),
-// 		Z: R * math.Sin(lat2),
-// 	}
-
-// 	// kalkulasi Euclidean diantara 2 titik
-// 	return p1.Sub(p2).Norm()
-// }
-
 //  radius bumi dalam km
 const earthRadius = 6371.0
 
@@ -235,8 +214,6 @@ func main() {
 		}
 		originData := db.Where("id = ?", calculate.OriginID).First(&dataOriginHouse)
 
-		fmt.Println("calcuate origin lat", dataOriginHouse.Lat)
-		// id := c.Param("id")
 		if originData.Error != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Data Origin not found"})
 			return
@@ -244,23 +221,19 @@ func main() {
 
 		destinationData := db.Where("id = ?", calculate.DestinationID).First(&dataDestinationHouse)
 
-		fmt.Println("originData", originData)
 		if destinationData.Error != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error or=": destinationData.Error.Error()})
 			return
 		}
-		fmt.Println(calculate.OtherStatus, "hello otherstatus")
-		fmt.Println(calculate.OtherID, "hello other id")
+
 		if calculate.OtherStatus == 1 { //if using 3 posisi
 			otherHouseData := db.Where("id = ?", calculate.OtherID).First(&otherHouse)
 			if otherHouseData.Error != nil {
 				c.JSON(http.StatusNotFound, gin.H{"error": otherHouseData.Error.Error()})
 				return
 			}
-			fmt.Println("hello keluar other status", otherHouse.Lat)
 
 		}
-		fmt.Println("hello otherhouse", otherHouse.ID)
 
 		originLat, _ := strconv.ParseFloat(dataOriginHouse.Lat, 64)
 		originLong, _ := strconv.ParseFloat(dataOriginHouse.Long, 64)
@@ -273,7 +246,6 @@ func main() {
 		if otherHouse.ID == 0 && calculate.OtherStatus == 0 {
 			otherHouseLat = destinationLat
 			otherHouseLong = destinationLong
-			fmt.Println("hello keluar nol")
 		}
 		resultHaversine := haversineDistance(originLong, originLat, destinationLong, destinationLat) + haversineDistance(destinationLong, destinationLat, otherHouseLong, otherHouseLat)
 
