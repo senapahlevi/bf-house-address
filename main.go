@@ -29,26 +29,26 @@ type House struct {
 }
 
 type Calculate struct {
-	OriginID        int    `gorm:"originid binding:"`
-	DestinationID   int    `gorm:"destinationid"`
-	LatOrigin       string `gorm:"lat_origin"`
-	LongOrigin      string `gorm:"long_origin"`
-	LatDestination  string `gorm:"lat_destination"`
-	LongDestination string `gorm:"long_destination"`
+	OriginID        int    `gorm:"originid" binding:"required" json:"originid"`
+	DestinationID   int    `gorm:"destinationid" json:"destinationid"`
+	LatOrigin       string `gorm:"lat_origin" json:"lat_origin"`
+	LongOrigin      string `gorm:"long_origin" json:"long_origin"`
+	LatDestination  string `gorm:"lat_destination" json:"lat_destination"`
+	LongDestination string `gorm:"long_destination" json:"long_destination"`
 	//
-	OtherStatus  int       `gorm:"other_status"`
-	OtherID      int       `gorm:"otherid"`
-	LatOther     string    `gorm:"lat_other"`
-	LongLatOther string    `gorm:"long_other"`
-	CreatedAt    time.Time `gorm:"created_at"`
+	OtherStatus  int       `gorm:"other_status" json:"other_status"`
+	OtherID      int       `gorm:"otherid" json:"otherid"`
+	LatOther     string    `gorm:"lat_other" json:"lat_other"`
+	LongLatOther string    `gorm:"long_other" json:"long_other"`
+	CreatedAt    time.Time `gorm:"created_at" `
 	UpdatedAt    time.Time `gorm:"updated_at"`
 }
 
 func EuclideanDistance(lat1, lon1, lat2, lon2 float64) float64 {
-	// Earth radius in kilometers
+	// radius bumi km
 	const R = 6371
 
-	// Convert latitude and longitude to Cartesian coordinates
+	// Convert latitude dan longitude ke Cartesian coordinates
 	p1 := r3.Vector{
 		X: R * math.Cos(lat1) * math.Cos(lon1),
 		Y: R * math.Cos(lat1) * math.Sin(lon1),
@@ -61,7 +61,7 @@ func EuclideanDistance(lat1, lon1, lat2, lon2 float64) float64 {
 		Z: R * math.Sin(lat2),
 	}
 
-	// Compute the Euclidean distance between the points
+	// kalkulasi Euclidean diantara 2 titik
 	return p1.Sub(p2).Norm()
 }
 
@@ -252,13 +252,16 @@ func main() {
 		}
 		fmt.Println(calculate.OtherStatus, "hello otherstatus")
 		fmt.Println(calculate.OtherID, "hello other id")
-		if calculate.OtherStatus == 1 {
+		if calculate.OtherStatus == 1 { //if using 3 posisi
 			otherHouseData := db.Where("id = ?", calculate.OtherID).First(&otherHouse)
 			if otherHouseData.Error != nil {
 				c.JSON(http.StatusNotFound, gin.H{"error": otherHouseData.Error.Error()})
 				return
 			}
+			fmt.Println("hello keluar other status", otherHouse.Lat)
+
 		}
+		fmt.Println("hello otherhouse", otherHouse.ID)
 
 		originLat, _ := strconv.ParseFloat(dataOriginHouse.Lat, 64)
 		originLong, _ := strconv.ParseFloat(dataOriginHouse.Long, 64)
@@ -268,6 +271,11 @@ func main() {
 		otherHouseLat, _ := strconv.ParseFloat(otherHouse.Lat, 64)
 		otherHouseLong, _ := strconv.ParseFloat(otherHouse.Long, 64)
 
+		if otherHouse.ID == 0 && calculate.OtherStatus == 0 {
+			otherHouseLat = destinationLat
+			otherHouseLong = destinationLong
+			fmt.Println("hello keluar nol")
+		}
 		resultHaversine := haversineDistance(originLong, originLat, destinationLong, destinationLat, otherHouseLong, otherHouseLat)
 		// resultCalculate := calculateDistance(originLat, originLong, destinationLat, destinationLong, otherHouseLong, otherHouseLat)
 		// 	lat1 := -6.21462 * math.Pi / 180 // convert degrees to radians
