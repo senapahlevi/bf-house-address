@@ -11,7 +11,6 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/golang/geo/r3"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -44,26 +43,26 @@ type Calculate struct {
 	UpdatedAt    time.Time `gorm:"updated_at"`
 }
 
-func EuclideanDistance(lat1, lon1, lat2, lon2 float64) float64 {
-	// radius bumi km
-	const R = 6371
+// func EuclideanDistance(lat1, lon1, lat2, lon2 float64) float64 {
+// 	// radius bumi km
+// 	const R = 6371
 
-	// Convert latitude dan longitude ke Cartesian coordinates
-	p1 := r3.Vector{
-		X: R * math.Cos(lat1) * math.Cos(lon1),
-		Y: R * math.Cos(lat1) * math.Sin(lon1),
-		Z: R * math.Sin(lat1),
-	}
+// 	// Convert latitude dan longitude ke Cartesian coordinates
+// 	p1 := r3.Vector{
+// 		X: R * math.Cos(lat1) * math.Cos(lon1),
+// 		Y: R * math.Cos(lat1) * math.Sin(lon1),
+// 		Z: R * math.Sin(lat1),
+// 	}
 
-	p2 := r3.Vector{
-		X: R * math.Cos(lat2) * math.Cos(lon2),
-		Y: R * math.Cos(lat2) * math.Sin(lon2),
-		Z: R * math.Sin(lat2),
-	}
+// 	p2 := r3.Vector{
+// 		X: R * math.Cos(lat2) * math.Cos(lon2),
+// 		Y: R * math.Cos(lat2) * math.Sin(lon2),
+// 		Z: R * math.Sin(lat2),
+// 	}
 
-	// kalkulasi Euclidean diantara 2 titik
-	return p1.Sub(p2).Norm()
-}
+// 	// kalkulasi Euclidean diantara 2 titik
+// 	return p1.Sub(p2).Norm()
+// }
 
 //  radius bumi dalam km
 const earthRadius = 6371.0
@@ -74,7 +73,7 @@ func deg2rad(deg float64) float64 {
 }
 
 // Kalkulasi 2 titik dalam km
-func haversineDistance(originLong float64, originLat float64, destinationLong float64, destinationLat, otherHouseLong, otherHouseLat float64) float64 {
+func haversineDistance(originLong float64, originLat float64, destinationLong float64, destinationLat float64) float64 {
 
 	// Convert the latitude and longitude values to radians
 	originLat = deg2rad(originLat)
@@ -276,31 +275,13 @@ func main() {
 			otherHouseLong = destinationLong
 			fmt.Println("hello keluar nol")
 		}
-		resultHaversine := haversineDistance(originLong, originLat, destinationLong, destinationLat, otherHouseLong, otherHouseLat)
-		// resultCalculate := calculateDistance(originLat, originLong, destinationLat, destinationLong, otherHouseLong, otherHouseLat)
-		// 	lat1 := -6.21462 * math.Pi / 180 // convert degrees to radians
-		lat1 := originLat * math.Pi / 180 // convert degrees to radians
-		long1 := originLong * math.Pi / 180
-		lat2 := destinationLat * math.Pi / 180
-		long2 := destinationLong * math.Pi / 180
-		lat3 := otherHouseLat * math.Pi / 180
-		long3 := otherHouseLong * math.Pi / 180
-		fmt.Println("long3 hello ", long3)
-		fmt.Println("lat3 hello ", lat3)
-		resultEuclidean := EuclideanDistance(lat1, long1, lat2, long2) + EuclideanDistance(lat2, long2, lat3, long3)
-		fmt.Println(EuclideanDistance(lat1, long1, lat2, long2), "hello ab")
-		fmt.Println(EuclideanDistance(lat2, long2, lat3, long3), "hello bc")
-		// fmt.Println(EuclideanDistance(latA, lonA, latB, lonB) + EuclideanDistance(latB, lonB, latC, lonC))
-		// }
-		// optimumRoute := append(calculate, calculateDistance)
-		// var hasil []CalculateResult
+		resultHaversine := haversineDistance(originLong, originLat, destinationLong, destinationLat) + haversineDistance(destinationLong, destinationLat, otherHouseLong, otherHouseLat)
+
 		HaversineResponse := strconv.FormatFloat(resultHaversine, 'f', -1, 64) // s = "64.2345"
-		// EuclideanResponse := strconv.FormatFloat(resultCalculate, 'f', -1, 64) // s = "64.2345"
-		EuclideanResponse := strconv.FormatFloat(resultEuclidean, 'f', -1, 64) // s = "64.2345"
 
 		response := ResponseCalculate{
-			Haversine:       HaversineResponse,
-			Euclidean:       EuclideanResponse,
+			Haversine: HaversineResponse,
+			// Euclidean:       EuclideanResponse,
 			OriginLong:      originLong,
 			OriginLat:       originLat,
 			DestinationLong: destinationLong,
@@ -309,13 +290,10 @@ func main() {
 			OtherLat:        otherHouseLat,
 		}
 		c.JSON(http.StatusOK, response)
-		// c.JSON(http.StatusOK, route)
 	})
 	// router.Run(":8080")
 	router.Run(":" + os.Getenv("PORT"))
-	// router.Run(":0.0.0.0")
 
-	// router.Run(":" + os.Getenv("PORT"))
 }
 
 func init() {
