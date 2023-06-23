@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -72,8 +73,13 @@ func haversineDistance(originLong float64, originLat float64, destinationLong fl
 	// satuan km
 	return d
 }
+func coba(productIDs string) []string {
 
+	fmt.Println("hello", strings.Split(productIDs, ","))
+	return strings.Split(productIDs, ",")
+}
 func main() {
+	coba("40,39,30,12")
 	host := os.Getenv("DB_HOST")
 	user := os.Getenv("DB_USER")
 	dbnames := os.Getenv("DB_NAME")
@@ -276,3 +282,50 @@ func init() {
 		log.Fatal("Error loading .env file")
 	}
 }
+
+// func main() {
+// 	texto := "cabbage"
+// 	coba := strings.Split(texto, "")
+// 	words := map[string]int{
+// 		// A, E, I, O, U, L, N, R, S, T
+// 		"a": 1,
+// 		"e": 1,
+// 		"i": 1,
+// 		"o": 1,
+// 		"u": 1,
+// 		"l": 1,
+// 		"n": 1,
+// 		"r": 1,
+// 		"s": 1,
+// 		"t": 1,
+
+// 		"d": 2,
+// 		"g": 2,
+
+// 		"b": 3,
+// 		"c": 3,
+// 		"m": 3,
+// 		"p": 3,
+
+// 		"f": 4,
+// 		"h": 4,
+// 		"v": 4,
+// 		"w": 4,
+// 		"y": 4,
+// 		"k": 5,
+
+// 		"j": 8,
+// 		"x": 8,
+// 		"q": 10,
+// 		"z": 10,
+// 	}
+// 	var total = 0
+// 	var last int
+// 	for _, i := range coba {
+// 		var count = 0
+// 		count += words[i]
+// 		total += count
+// 		last = total
+// 	}
+// 	fmt.Println("last", last)
+// }
