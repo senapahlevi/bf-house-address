@@ -13,6 +13,7 @@ type Database struct {
 }
 
 func NewDatabase() (*Database, error) {
+
 	host := os.Getenv("DB_HOST")
 	user := os.Getenv("DB_USER")
 	dbnames := os.Getenv("DB_NAME")
@@ -24,6 +25,11 @@ func NewDatabase() (*Database, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// errs := db.AutoMigrate(&models.User{})
+	// if errs != nil {
+	// 	log.Fatal(errs)
+	// }
 
 	return &Database{
 		DB: db,

@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"housemap/address"
 	"housemap/databases"
+	"housemap/login"
+	"housemap/middleware"
+	"housemap/register"
+	"housemap/user"
 	"log"
 	"os"
 
@@ -27,18 +31,15 @@ func main() {
 	// 	fmt.Println("gagal")
 	// }
 	fmt.Println("berhasil konek")
-	// err = db.AutoMigrate(&Calculate{})
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
 	database, err := databases.NewDatabase()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	address.SetDatabase(database)
-
+	register.SetDatabaseRegister(database)
+	user.SetDatabaseUser(database)
+	login.SetDatabaseLogin(database)
 	router := gin.Default()
 
 	router.Use(cors.New(cors.Config{
@@ -61,6 +62,9 @@ func main() {
 	api.DELETE("/house/:id", address.DeleteDataHouse)
 
 	api.POST("/calculate-route", address.CalculateHouse)
+	api.POST("/register", register.RegisterUser)
+	api.POST("/login", login.LoginUser)
+	api.POST("/userFound", middleware.AuthMiddleware(), user.UserFound)
 	// router.Run(":8080")
 	router.Run(":" + os.Getenv("PORT"))
 
