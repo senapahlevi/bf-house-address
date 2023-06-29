@@ -9,9 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Authentication(c *gin.Context) uint {
-
-	user := c.MustGet("user").(*register.Claims)
+func Authentication(c *gin.Context) *register.Claims {
 
 	//no works
 	// user := c.MustGet("user").(*jwt.Token)
@@ -19,7 +17,8 @@ func Authentication(c *gin.Context) uint {
 
 	// userID := uint(claims["id"].(float64))
 
-	return userID
+	userAuth := c.MustGet("user").(*register.Claims)
+	return userAuth
 
 }
 
@@ -45,8 +44,9 @@ func AuthMiddleware() gin.HandlerFunc {
 			return []byte(secret_key), nil
 		})
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-
+			//if expired will showing these message
+			// c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			c.JSON(http.StatusUnauthorized, gin.H{"status": "expired"})
 			c.Abort()
 			return
 		}

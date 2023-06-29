@@ -32,6 +32,12 @@ func RegisterUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "email already taken"})
 		return
 	}
+	//check username
+	var existUsername models.User
+	if err := db.Where("username = ?", register.Username).First(&existUsername).Error; err == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "username already taken"})
+		return
+	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(register.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -43,16 +49,16 @@ func RegisterUser(c *gin.Context) {
 		Email:    register.Email,
 		Password: string(hashedPassword),
 	}
-	token, err := generateToken(user.ID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token "})
-		return
-	}
+	// token, err := generateToken(user.ID)
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token "})
+	// 	return
+	// }
 	if err := db.Create(&user).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"token": token})
+	c.JSON(http.StatusOK, gin.H{"status": "success"})
 }
 
 func generateToken(UserId int) (string, error) {

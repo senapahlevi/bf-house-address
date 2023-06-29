@@ -5,7 +5,6 @@ import (
 	"housemap/databases"
 	"housemap/middleware"
 	"housemap/models"
-	"housemap/register"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -19,16 +18,15 @@ func SetDatabaseUser(databased *databases.Database) {
 }
 
 func UserFound(c *gin.Context) {
-	user := c.MustGet("user").(*register.Claims)
+	// user := c.MustGet("user").(*register.Claims)
 
-	auth := middleware.Authentication
-
+	var auth = middleware.Authentication(c)
+	fmt.Println("hello auth userfound", auth.UserID)
 	var users models.User
-	if err := db.First(&users, user.UserID).Error; err != nil {
+	if err := db.First(&users, auth.UserID).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "user not found"})
 		return
 	}
 	fmt.Println("hello 5")
-	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Welcome, %s!", users.Username)})
-
+	c.JSON(http.StatusOK, gin.H{"status": "granted"})
 }
