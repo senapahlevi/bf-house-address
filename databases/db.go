@@ -2,6 +2,8 @@ package databases
 
 import (
 	"fmt"
+	"housemap/models"
+	"log"
 	"os"
 
 	"gorm.io/driver/postgres"
@@ -26,10 +28,10 @@ func NewDatabase() (*Database, error) {
 		return nil, err
 	}
 
-	// errs := db.AutoMigrate(&models.User{})
-	// if errs != nil {
-	// 	log.Fatal(errs)
-	// }
+	errs := db.AutoMigrate(&models.User{})
+	if errs != nil {
+		log.Fatal(errs)
+	}
 
 	return &Database{
 		DB: db,

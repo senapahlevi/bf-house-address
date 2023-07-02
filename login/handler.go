@@ -26,11 +26,17 @@ func LoginUser(c *gin.Context) {
 	}
 	var user models.User
 	if err := db.Where("username = ?", request.Username).First(&user).Error; err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username"})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":  "Invalid username or password",
+			"status": "denied",
+		})
 		return
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":  "Invalid username or password",
+			"status": "denied",
+		})
 		return
 	}
 	token, err := generateToken(user.ID)
@@ -39,14 +45,17 @@ func LoginUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": token})
+	c.JSON(http.StatusOK, gin.H{
+		"token":  token,
+		"status": "success",
+	})
 }
 
 func generateToken(UserId int) (string, error) {
 	claims := jwt.MapClaims{
-		"id": UserId,
-		// "exp": time.Now().Add(time.Hour * 24).Unix(), //expiration for token
-		"exp": time.Now().Add(time.Minute * 2).Unix(), //expiration for token
+		"id":  UserId,
+		"exp": time.Now().Add(time.Hour * 24).Unix(), //expiration for token
+		// "exp": time.Now().Add(time.Minute * 2).Unix(), //expiration for token
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	secret_key := "tokentoken"
